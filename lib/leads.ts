@@ -3,6 +3,8 @@ const PHONE_COLUMN_ALIASES = new Set([
   "telefone",
   "celular",
   "whatsapp",
+  "phone",
+  "contactphone",
 ]);
 
 const COMBINING_DIACRITIC_START = 0x0300;
