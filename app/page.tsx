@@ -44,10 +44,10 @@ function extractErrorMessage(data: unknown, rawText: string, status: number): st
 
 export default function Home() {
   const [weekdayOptions] = useState(() => getWeekdayOptions());
-  const [selectedDows, setSelectedDows] = useState<number[]>(() =>
+  const [selectedDates, setSelectedDates] = useState<string[]>(() =>
     getWeekdayOptions()
       .filter((w) => w.defaultChecked)
-      .map((w) => w.dow)
+      .map((w) => w.date)
   );
 
   const [fileName, setFileName] = useState<string | null>(null);
@@ -75,7 +75,7 @@ export default function Home() {
   const hasPreview = rows.length > 0 && !isParsing && !parseError;
   const qualWebnAutoFailed = lote.trim() !== "" && autoQualWebn === "" && qualWebn.trim() === "";
   const canSubmit =
-    hasPreview && lote.trim() !== "" && selectedDows.length > 0 && !isSubmitting;
+    hasPreview && lote.trim() !== "" && selectedDates.length > 0 && !isSubmitting;
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -104,8 +104,8 @@ export default function Home() {
     }
   }
 
-  function toggleDow(dow: number, checked: boolean) {
-    setSelectedDows((prev) => (checked ? [...prev, dow] : prev.filter((d) => d !== dow)));
+  function toggleDate(date: string, checked: boolean) {
+    setSelectedDates((prev) => (checked ? [...prev, date] : prev.filter((d) => d !== date)));
   }
 
   async function handleSubmit() {
@@ -114,7 +114,7 @@ export default function Home() {
     setSubmitResult(null);
 
     const dias = weekdayOptions
-      .filter((w) => selectedDows.includes(w.dow))
+      .filter((w) => selectedDates.includes(w.date))
       .map((w) => w.date);
 
     try {
@@ -221,17 +221,18 @@ export default function Home() {
 
             <div className="flex flex-col gap-3">
               <Label>Dias de disparo</Label>
+              <p className="text-xs text-muted-foreground">Próximos 7 dias — terça a sexta vêm marcados por padrão</p>
               <div className="flex flex-col gap-2">
                 {weekdayOptions.map((option) => {
-                  const checked = selectedDows.includes(option.dow);
+                  const checked = selectedDates.includes(option.date);
                   return (
                     <label
-                      key={option.dow}
+                      key={option.date}
                       className="flex items-center gap-3 text-sm text-foreground"
                     >
                       <Checkbox
                         checked={checked}
-                        onCheckedChange={(value) => toggleDow(option.dow, value === true)}
+                        onCheckedChange={(value) => toggleDate(option.date, value === true)}
                         disabled={isSubmitting}
                       />
                       <span>
@@ -241,7 +242,7 @@ export default function Home() {
                   );
                 })}
               </div>
-              {selectedDows.length === 0 && (
+              {selectedDates.length === 0 && (
                 <p className="text-xs text-destructive">Selecione ao menos um dia.</p>
               )}
             </div>

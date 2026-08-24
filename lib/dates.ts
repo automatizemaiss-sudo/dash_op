@@ -1,16 +1,16 @@
 const WEEKDAY_LABELS: Record<number, string> = {
+  0: "Domingo",
   1: "Segunda-feira",
   2: "Terça-feira",
   3: "Quarta-feira",
   4: "Quinta-feira",
   5: "Sexta-feira",
+  6: "Sábado",
 };
 
 export type WeekdayOption = {
-  /** 1 = segunda .. 5 = sexta */
-  dow: number;
   label: string;
-  /** yyyy-MM-dd, próxima ocorrência a partir de hoje (fuso America/Sao_Paulo) */
+  /** yyyy-MM-dd (fuso America/Sao_Paulo) */
   date: string;
   defaultChecked: boolean;
 };
@@ -43,25 +43,23 @@ export function formatBr(isoDate: string): string {
 }
 
 /**
- * Segunda a sexta com a data da próxima ocorrência de cada dia, a partir de
- * "hoje" em America/Sao_Paulo. Se hoje é terça, a terça da lista é hoje.
+ * Os proximos 7 dias corridos a partir de "hoje" em America/Sao_Paulo
+ * (hoje incluso). Terça a sexta vem marcada por padrão; o resto, não.
  */
 export function getWeekdayOptions(): WeekdayOption[] {
   const { year, month, day } = todaySaoPauloParts();
   // Date "de calendário" pura: construída e lida só com getters locais,
   // então o fuso do navegador nunca entra na conta.
   const today = new Date(year, month - 1, day);
-  const todayDow = today.getDay();
 
-  return [1, 2, 3, 4, 5].map((dow) => {
-    const shift = (dow - todayDow + 7) % 7;
+  return Array.from({ length: 7 }, (_, i) => {
     const occurrence = new Date(today);
-    occurrence.setDate(occurrence.getDate() + shift);
+    occurrence.setDate(occurrence.getDate() + i);
+    const dow = occurrence.getDay();
     return {
-      dow,
       label: WEEKDAY_LABELS[dow],
       date: formatLocalDate(occurrence),
-      defaultChecked: dow !== 1,
+      defaultChecked: dow >= 2 && dow <= 5,
     };
   });
 }
